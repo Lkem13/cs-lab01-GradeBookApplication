@@ -1,11 +1,10 @@
-﻿using System;
-using System.Linq;
-
-using GradeBook.Enums;
-using System.Collections.Generic;
-using System.IO;
+﻿using GradeBook.Enums;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace GradeBook.GradeBooks
 {
@@ -109,6 +108,27 @@ namespace GradeBook.GradeBooks
 
         public virtual double GetGPA(char letterGrade, StudentType studentType)
         {
+            if (IsWeighted)
+            {
+                if (studentType.ToString() == "Honors" || studentType.ToString() == "DualEnrolled")
+                {
+                    switch (letterGrade)
+                    {
+                        case 'A':
+                            return 5;
+                        case 'B':
+                            return 4;
+                        case 'C':
+                            return 3;
+                        case 'D':
+                            return 2;
+                        case 'F':
+                            return 1;
+                        default:
+                            return 0;
+                    }
+                }
+            }
             switch (letterGrade)
             {
                 case 'A':
@@ -121,8 +141,9 @@ namespace GradeBook.GradeBooks
                     return 1;
                 case 'F':
                     return 0;
+                default:
+                    return 0;
             }
-            return 0;
         }
 
         public virtual void CalculateStatistics()
@@ -266,7 +287,7 @@ namespace GradeBook.GradeBooks
                              from type in assembly.GetTypes()
                              where type.FullName == "GradeBook.GradeBooks.StandardGradeBook"
                              select type).FirstOrDefault();
-            
+
             return JsonConvert.DeserializeObject(json, gradebook);
         }
     }
